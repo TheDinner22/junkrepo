@@ -1,146 +1,94 @@
-function [name, ufid, ...
-    A1, A2, A3, A4, ...
-    A, B, ABBA, C, AC, CA, AI, IA, inverse_A, ...
-    D, inverse_D, rref_something, rref_inverse_D, inv_inv_D, ...
-    E, inverse_DE, inv_D_inv_E, inv_E_inv_D, ...
-    inv_DT, inv_D_T] = Exercise3(n)
+ function [name, ufid, ...
+    N1, B1, pivcols1, C1, R1, ...
+    N2, B2, pivcols2, C2, R2, ...
+    N3, B3, pivcols3, C3, R3, ...
+    A4, N4, B4, pivcols4, C4, R4, ...
+    rank_A1, rank_A2, rank_A3, rank_A4] = Exercise3(A1, A2, A3)
     % --- Name & UFID --- %
-    name = "Joseph Handsome";
+    name = "";
     ufid = ;
 
     % --- Part A [10 Points] --- %
-    % For-Loop (i)
-    A1 = zeros(n);
-    for i = 1:n
-        for j = 1:n
-            A1(i,j) = i + j;
-        end
-    end
+    % (i) Compute a basis for the nullspace, columnspace, and rowspace of A1.
+    N1 = null(A1);
 
-    % For-Loop (ii)
-    A2 = zeros(n);
-    for i = 1:n
-        for j = i:n
-            A2(i,j) = i + j;
-            A2(j,i) = A2(i,j);
-        end
-    end
+    [B1, pivcols1] = rref(A1);
+    C1 = A1(:, pivcols1);
+    % col(rref(A)) != col(A) where col(A) is the column space of A
+    % rather the piv cols in rref(A) are the cols of A which make up
+    % col(A). It's hard to explain but for example if cols 1 and 2 are
+    % pivot columns in the rref, then cols 1 and 2 in A are the basis of
+    % the column space of A
 
-    % (COMMENT; SAME OUTPUT?)
-    % yeah the output is the same even though the
-    % nested loops go from i:n and 1:n
-
-    % For-Loop (i) = (EXPRESSION IN TERMS OF n) FLOPs
-    % loop (i) will run n^2 (25 for n=5) times since both loops go from
-    % 1:n
-    % For-Loop (ii) = (EXPRESSION IN TERMS OF n) FLOPs
-    % i know the time complexity is nlog(n)
-    % but after (painfully) counting the number of additions
-    % i got 15 additions
-
-    % (COMPARE; WHICH REQUIRES LESS FLOPs?)
-    % loop ii requires fewer FLOPs
+    R1 = B1([1:rank(B1)], :);
+    % row space is just the non-zero rows of the rref of A
+    % we can use rank(B1) to filter out the 0 rows
+    %
 
     % --- Part B [10 Points] --- %
-    % While-Loop (i)
-    A3 = zeros(n); % (DO NOT MODIFY THIS LINE)
+    % (ii) Compute a basis for the nullspace, columnspace, and rowspace of A2.
+    N2 = null(A2);
 
-    % (REWRITE FOR-LOOP (i) USING WHILE LOOPS HERE)
-    i=1;
-    while i <= n
-        j = 1;
-        while j<=n
-            A3(i,j) = i+j;
-            j = j+1;
-        end
-        i = i+1;
-    end
+    [B2, pivcols2] = rref(A2);
+    C2 = A2(:, pivcols2);
 
-    % While-Loop (ii)
-    A4 = zeros(n); % (DO NOT MODIFY THIS LINE)
+    R2 = B2([1:rank(B2)], :);
 
-    % (REWRITE FOR-LOOP (ii) USING WHILE LOOPS HERE)
-    i=1;
-    while i <= n
-        j = i;
-        while j<=n
-            A4(i,j) = i+j;
-            A4(j,i) = A4(i,j);
-            j = j+1;
-        end
-        i = i+1;
-    end
+    % (iii) Compute a basis for the nullspace, columnspace, and rowspace of A3.
+    N3 = null(A3);
+
+    [B3, pivcols3] = rref(A3);
+    C3 = A3(:, pivcols3);
+
+    R3 = B3([1:rank(B3)], :);
+
+    % (iv) Compute a basis for the nullspace, columnspace, and rowspace of A4.
+    A4 = [1 0 -2 -3 0 0; -3 -2 0 0 0 3; -7 -4 2 3 0 6; -3 -4 -6 -9 5 6];
+
+    N4 = null(A4);
+
+    [B4, pivcols4] = rref(A4);
+    C4 = A4(:, pivcols4);
+    R4 = B4([1:rank(B4)], :);
+
+    % (WHAT DOES THE *NULLSPACE* OF A4 LOOK LIKE GEOMETRICALLY?)
+    % the nullspace of A4 is a subset (and subspace since its a span) of
+    % R^6 it is a 3D space in R^6. It is a 3D "cube" in R^6
+    % (WHAT DOES THE *COLUMNSPACE* OF A4 LOOK LIKE GEOMETRICALLY?)
+    % the column space is a subset and subspace of R^4 (since A4 has 4
+    % rows) it is also a 3D space and or "cube" in R^4.
 
     % --- Part C [10 Points] --- %
-    A = A1; % (DO NOT MODIFY THIS LINE)
-    B = randi([-7, 7], n, n-2);
+    % Verify the Rank Theorem for A1, A2, A3, & A4.
+    rank_A1 = rank(A1);
+    %   i) dim(Col A1) = dim(Row A1) = rank(A1) = 3
+    %  ii) rank(A1) + dim(Nul A1) = # of piv cols + # of free variables = 3 + 0 = n
 
-    ABBA = A*B;
-    % (EXPLAIN WHY EITHER A*B OR B*A DOES NOT WORK / IS UNDEFINED)
-    % matrix multiplication between A and B is only defined if
-    % the number of cols in A is = to the number of rows in B
-    % A is nxn and B is nx(n-2)
-    % AB works becuase n=n 
-    % BA crashes becuase n-2!=n
+    rank_A2 = rank(A2);
+    %   i) dim(Col A2) = dim(Row A2) = rank(A2) = 3
+    %  ii) rank(A2) + dim(Nul A2) = 3 + 2 = 5 = n
 
-    C = randi([-7, 7], n, n);
+    rank_A3 = rank(A3);
+    %   i) dim(Col A3) = dim(Row A3) = rank(A3) = 5
+    %  ii) rank(A3) + dim(Nul A3) = 5 + 0 = 5 = n
 
-    AC = A*C;
-    CA = C*A;
-    % (OBSERVE & EXPLAIN WHY EITHER EQUAL OR NOT EQUAL USING LINEAR ALGEBRA)
-    % Aside: Matrix multiplication is function composition.
-    % AC and CA are not equal
-    % in general AB != BA
-    % if you think back to the derivation of matrix multiplication
-    % we consider A is mxn and B is nxp
-    % we consider the composition of transformations from
-    % R^p to R^n to R^m
-    % performing the composition of transformation gives the definition
-    % of matrix multiplication
-    % reversing the composition
-    % that is going from R^m to R^n to R^p (assuming the product is even
-    % defined) will almost certainly give a different result since the
-    % results are in R^m and R^p respectively
+    rank_A4 = rank(A4);
+    %   i) dim(Col A4) = dim(Row A4) = 3
+    %  ii) rank(A4) + dim(Nul A4) = 3 + 3 = 6 = n
 
-    AI = A*eye(n);
-    IA = eye(n)*A;
-    % (OBSERVE & EXPLAIN WHY EITHER EQUAL OR NOT EQUAL USING LINEAR ALGEBRA)
-    % Hint: I_n, the identity matrix, has some special property.
-    % since I_n is a diagonal matrix with all of its entries are equal to 1
-    % IA = AI = A for any matrix A (as long as the product is defined
-
-    % --- Part D [10 Points] --- %
-    inverse_A = inv(A); %(dont like warning)
-    % (OBSERVE WARNING & CONCLUDE INVERTIBILITY OF A)
-    % A is not invertable! :(
-
-    D = [1 0 -1; 2 1 -2; 0 1 -1];
-    inverse_D = inv(D);
-
-    % Complete using *only* two lines and using the rref function (cannot use
-    % inv function)!
-    rref_something = rref([D eye(3)]);
-    rref_inverse_D = rref_something([1 2 3], [4 5 6]);
-
-    inv_inv_D = inv(inverse_D);
-    % (OBSERVE & GENERALIZE)
-    % equals D, in general the inverse of a matrixes inverse is that matrix
-    % that is the two inverses "cancel out"
-
-    E = [1 -2 2; 1 -1 0; 1 -1 2];
-
-    inverse_DE = inv(D*E);
-    inv_D_inv_E = inv(D)*inv(E);
-    inv_E_inv_D = inv(E)*inv(D);
-    % The inverse of the product of two invertible matrices D and C is
-    % equal to (FINISH GENERALIZATION)
-    % the inverse of the product is equal to the product of the (reversed)
-    % inverses, that is inv(DE) = inv(E)*inv(D)
-
-    inv_DT = inv(D');
-    inv_D_T = (inv(D))';
-    % The inverse of the transpose of an invertible matrix D is equal to
-    % (FINISH GENERALIZATION)
-    % the transpose of the inverse
-    % that is inv(D') = (inv(D))'
+    % [EC, +5 pts] Consider the case that you have found 3 linearly
+    % independent solutions to the system Ax = 0 where A is an 20 x 23
+    % coeffiecient matrix. Also, these solutions can construct every other
+    % possible solution to the system by forming some linear combination
+    % of the set of them.
+    %
+    % (a) What is dim Nul A? What about dim Col A?
+    %
+    %     (ENTER HERE)
+    %
+    % (b) Can you be certain that every non-homogenous system Ax = b has
+    %     a solution? Why or why not (provide valid reasoning/proof)?
+    %
+    %     (ENTER HERE) I wouldnt do more matlab for
+    % 100000 extra credit points! :((
 end
